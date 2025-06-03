@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>דוח כשירות ומשימות שבועי - ימח</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body {
+      background: #f7f7f8;
+      font-family: Arial, sans-serif;
+      padding: 0;
+      margin: 0;
+    }
+    .container {
+      max-width: 99vw;
+      width: 97vw;
+      margin: 10px auto 0 auto;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px #0002;
+      padding: 4vw 2vw 2vw 2vw;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 1.2em;
+      color: #222;
+      letter-spacing: .02em;
+    }
+    .section-title {
+      font-size: 1.07em;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      color: #234;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 2px;
+      direction: rtl;
+      text-align: right;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+      color: #222;
+      font-size: 1em;
+      line-height: 1.35;
+      direction: rtl;
+      text-align: right;
+    }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 9px 8px;
+      margin-bottom: 14px;
+      font-size: 1em;
+      border-radius: 7px;
+      border: 1px solid #ddd;
+      background: #f9f9fa;
+      transition: border .2s;
+      direction: rtl;
+      text-align: right;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #46a3f5;
+      background: #fff;
+    }
+    textarea {
+      min-height: 40px;
+      resize: none;
+      overflow: hidden;
+    }
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+    .btns {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 22px;
+      font-size: 1em;
+      background: #2196F3;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 1px 6px #0001;
+      transition: background .2s;
+    }
+    button:hover { background: #156dc3; }
+    button#resetBtn { background: #ddd; color: #222; }
+    button#resetBtn:hover { background: #bbb; }
+    #result-img {
+      display: block;
+      margin: 22px auto 0;
+      max-width: 97vw;
+      border-radius: 9px;
+      box-shadow: 0 1px 8px #0002;
+    }
+    .note {
+      color: #777;
+      text-align: center;
+      font-size: 0.92em;
+      margin-bottom: 12px;
+    }
+    .conditional { display: none; }
+    .required-star { color: #e22; font-weight: bold; margin-right: 2px; }
+    .signature-pad {
+      width: 100%;
+      height: 60px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      background: #f2f2f2;
+      margin-bottom: 8px;
+      margin-top:2px;
+      position: relative;
+      cursor: crosshair;
+      touch-action: none;
+    }
+    .signature-pad-label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+      font-size: 1em;
+      direction: rtl;
+      text-align: right;
+    }
+    .clear-signature {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: #fff;
+      border: 1px solid #aaa;
+      border-radius: 6px;
+      padding: 2px 10px;
+      font-size: .93em;
+      color: #123;
+      cursor: pointer;
+      z-index:2;
+    }
+    .radio-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      direction: rtl;
+      text-align: right;
+    }
+    .radio-row label {
+      font-weight: normal;
+      margin-bottom: 0;
+      color: #222;
+      font-size: 1em;
+      margin-right: 2px;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 2vw 2vw 2vw 2vw; }
+      h2 { font-size: 1.06em;}
+      label, .signature-pad-label, input, select, textarea, .section-title { font-size: 0.99em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="formContainer">
+    <h2>דוח כשירות ומשימות שבועי - ימח</h2>
+    <div class="note">שדות המסומנים ב-<span class="required-star">*</span> הם חובה</div>
+    <form id="mainForm" autocomplete="off">
+
+      <!-- פרטי ממלא הדוח -->
+      <label for="date"><span class="required-star">*</span>תאריך</label>
+      <input type="date" id="date" name="date" required>
+      <label for="reporter"><span class="required-star">*</span>שם הממלא</label>
+      <input type="text" id="reporter" name="reporter" required>
+
+      <!-- חלק הכשירות -->
+      <div class="section-title">כשירות</div>
+      <div id="readinessSections"></div>
+
+      <!-- תזקיקים -->
+      <div class="section-title">תזקיקים</div>
+      <label for="diesel010"><span class="required-star">*</span>כמות הסולר באחוזים בריו סולר - 010</label>
+      <select id="diesel010" name="diesel010" required>
+        <option value="">בחר</option>
+        <option>0%</option><option>10%</option><option>20%</option><option>30%</option><option>40%</option>
+        <option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option>
+      </select>
+      <label for="diesel878"><span class="required-star">*</span>כמות הסולר באחוזים בריו סולר - 878</label>
+      <select id="diesel878" name="diesel878" required>
+        <option value="">בחר</option>
+        <option>0%</option><option>10%</option><option>20%</option><option>30%</option><option>40%</option>
+        <option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option>
+      </select>
+      <label for="portableTanks"><span class="required-star">*</span>פירוט כמות וסוג מיכלים נישאים (ג'ריקן סולר, ג'ריקן בנזין, בלון גז בישול, בלון חמצן, בלון חנקן)</label>
+      <textarea type="text" id="portableTanks" name="portableTanks" required></textarea>
+      <label><span class="required-star">*</span>כל רכבי היחידה מתודלקים (מיכל מלא)</label>
+      <div class="radio-row">
+        <label><input type="radio" name="allFueled" value="כן" required> כן</label>
+        <label><input type="radio" name="allFueled" value="לא" required> לא</label>
+      </div>
+
+      <!-- אפסניה -->
+      <div class="section-title">אפסניה</div>
+      <div id="apothecarySection"></div>
+
+      <!-- ציוד רפואי -->
+      <div class="section-title">ציוד רפואי</div>
+      <label><span class="required-star">*</span>האם כלל התקן בציוד רפואי של היחידה מלא?</label>
+      <div class="radio-row">
+        <label><input type="radio" name="medicalFull" value="כן" required> כן</label>
+        <label><input type="radio" name="medicalFull" value="לא" required> לא</label>
+      </div>
+      <div id="medicalMissingSection" class="conditional">
+        <label for="medicalMissing"><span class="required-star">*</span>פרט מדוע חסר ציוד רפואי ומה הציוד החסר</label>
+        <textarea id="medicalMissing" name="medicalMissing"></textarea>
+      </div>
+
+      <!-- משימות שבועיות -->
+      <div class="section-title">משימות שבועיות</div>
+      <label for="tasksDone"><span class="required-star">*</span>מלבד מה שצוין מעלה, מה המשימות שבוצעו במהלך השבוע האחרון?</label>
+      <textarea id="tasksDone" name="tasksDone" required></textarea>
+      <label for="tasksPlanned"><span class="required-star">*</span>מלבד מה שצוין מעלה, מה המשימות המתוכננות לשבוע הבא?</label>
+      <textarea id="tasksPlanned" name="tasksPlanned" required></textarea>
+
+      <!-- סיכום -->
+      <div class="section-title">סיכום</div>
+      <label for="notes">הערות נוספות</label>
+      <textarea id="notes" name="notes"></textarea>
+      <label for="inspections">ציין במידה ומתואמות ביקורות לימ"ח בתקופה הקרובה</label>
+      <input type="text" id="inspections" name="inspections">
+
+      <!-- חתימה -->
+      <div style="margin-top:20px;margin-bottom:17px;">
+        <span class="signature-pad-label"><span class="required-star">*</span>חתימה</span>
+        <div style="position:relative">
+          <canvas id="signaturePad" class="signature-pad"></canvas>
+          <span class="clear-signature" onclick="clearSignaturePad()">נקה</span>
+        </div>
+      </div>
+
+      <div style="height:15px"></div>
+      <div class="btns">
+        <button type="button" id="generateImgBtn">צור תצלום</button>
+        <button type="button" id="resetBtn">אפס את הטופס</button>
+      </div>
+    </form>
+  </div>
+  <img id="result-img" style="display:none" />
+
+  <script>
+    // כשירות
+    const readinessSectionsData = [
+      {
+        id: 'car',
+        title: 'רכב',
+        percentLabel: 'כשירות הרכב ביחידה באחוזים',
+        percentDetailLabel: 'פירוט במידה ונפגעה הכשירות בתחום הרכב',
+        weekLabel: "במידה ונבחנו רכבים השבוע - אילו סוגי כלים ומה מספרי הצ'?",
+        nextWeekLabel: "במידה ויבחנו רכבים בשבוע הבא - אילו סוגי כלים ומה מספרי הצ'?"
+      },
+      {
+        id: 'armor',
+        title: 'רק\"מ וגנרציה',
+        percentLabel: 'כשירות הרק"מ והגנרציה ביחידה באחוזים',
+        percentDetailLabel: 'פירוט במידה ונפגעה הכשירות בתחום רק"מ וגנרציה',
+        weekLabel: "במידה ונבחן רק\"מ או אמצעי גנרציה השבוע - אילו סוגי כלים ומה מספרי הצ'?",
+        nextWeekLabel: "במידה ויבחן רק\"מ או אמצעי גנרציה בשבוע הבא - אילו סוגי כלים ומה מספרי הצ'?"
+      },
+      {
+        id: 'weapon',
+        title: 'נשק',
+        percentLabel: 'כשירות הנשק ביחידה באחוזים',
+        percentDetailLabel: 'פירוט במידה ונפגעה הכשירות בתחום הנשק',
+        weekLabel: "במידה ונבחנו נשקים השבוע - מה הכמות ואילו סוגים?",
+        nextWeekLabel: "במידה ויבחנו נשקים בשבוע הבא - מה הכמות ואילו סוגים?"
+      },
+      {
+        id: 'optics',
+        title: 'אופטיקה',
+        percentLabel: 'כשירות האופטיקה ביחידה באחוזים',
+        percentDetailLabel: 'פירוט במידה ונפגעה הכשירות בתחום האופטיקה',
+        weekLabel: "במידה ונבחנו אמצעי אופטיקה השבוע - מה הכמות ואילו סוגים?",
+        nextWeekLabel: "במידה ויבחנו אמצעי אופטיקה בשבוע הבא - מה הכמות ואילו סוגים?"
+      },
+      {
+        id: 'ammo',
+        title: 'תחמושת',
+        percentLabel: 'כשירות התחמושת ביחידה באחוזים',
+        percentDetailLabel: 'פירוט במידה ונפגעה הכשירות בתחום התחמושת',
+        weekLabel: "במידה ונבחנה תחמושת השבוע - מה הכמות ואילו סוגים?",
+        nextWeekLabel: "במידה ותיבחן תחמושת בשבוע הבא - מה הכמות ואילו סוגים?"
+      }
+    ];
+    let html = '';
+    for (const item of readinessSectionsData) {
+      html += `<div style="margin-bottom:12px;"><span style="font-weight:bold;font-size:1.01em;">${item.title}</span></div>`;
+      html += `<label for="${item.id}_percent"><span class="required-star">*</span>${item.percentLabel}</label>`;
+      html += `<select id="${item.id}_percent" name="${item.id}_percent" required>
+        <option value="">בחר</option>
+        <option>0%</option><option>10%</option><option>20%</option><option>30%</option><option>40%</option>
+        <option>50%</option><option>60%</option><option>70%</option><option>80%</option><option>90%</option><option>100%</option>
+      </select>`;
+      html += `<div id="${item.id}_detail_section" class="conditional">
+        <label for="${item.id}_detail"><span class="required-star">*</span>${item.percentDetailLabel}</label>
+        <textarea id="${item.id}_detail" name="${item.id}_detail"></textarea>
+      </div>`;
+      html += `<label for="${item.id}_week">${item.weekLabel}</label>
+      <textarea id="${item.id}_week" name="${item.id}_week"></textarea>`;
+      html += `<label for="${item.id}_nextweek">${item.nextWeekLabel}</label>
+      <textarea id="${item.id}_nextweek" name="${item.id}_nextweek"></textarea>`;
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.getElementById('readinessSections').innerHTML = html;
+    });
+
+    const apothecaryQuestions = [
+      'פרט במידה והיו ריענונים השבוע - אילו פריטים ומה הכמות',
+      'פרט במידה ומתואמים ריענונים בשבוע הבא - אילו פריטים ומה הכמות',
+      'פרט במידה וזוכה ציוד השבוע - איזה ציוד, מה הכמות, מול מי הוא זוכה ומי נתן את הוראת הזיכוי',
+      'פרט במידה ומתואם זיכוי של ציוד בשבוע הבא - איזה ציוד, מה הכמות, מול מי תואם הזיכוי ומי נתן את ההוראה לזכות',
+      'פרט במידה ונמשך/נדחף ציוד חדש השבוע - איזה ציוד, מה הכמות, מול מי תואמה המשיכה/דחיפה ומי נתן את ההוראה למשוך/לדחוף',
+      'פרט במידה ועתיד להימשך/להידחף ציוד חדש בשבוע הבא - איזה ציוד, מה הכמות, מול מי מתואמת המשיכה/דחיפה ומי נתן את ההוראה למשוך/לדחוף'
+    ];
+    let apoHtml = '';
+    for (let i=0;i<apothecaryQuestions.length;i++) {
+      apoHtml += `<label for="apo${i+1}">${apothecaryQuestions[i]}</label>
+        <textarea id="apo${i+1}" name="apo${i+1}"></textarea>`;
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.getElementById('apothecarySection').innerHTML = apoHtml;
+    });
+
+    function handlePercentDropdowns() {
+      for (const item of readinessSectionsData) {
+        const select = document.getElementById(item.id+'_percent');
+        if (!select) continue;
+        select.addEventListener('change', function() {
+          const val = this.value.replace('%','');
+          const show = val!=='' && val!=='100';
+          const detailSection = document.getElementById(item.id+'_detail_section');
+          detailSection.style.display = show ? 'block' : 'none';
+          document.getElementById(item.id+'_detail').required = show;
+        });
+      }
+    }
+    document.addEventListener('DOMContentLoaded',handlePercentDropdowns);
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.getElementsByName('medicalFull').forEach(radio=>{
+        radio.addEventListener('change', function() {
+          const show = this.value==='לא';
+          document.getElementById('medicalMissingSection').style.display = show ? 'block' : 'none';
+          document.getElementById('medicalMissing').required = show;
+        });
+      });
+    });
+
+    let canvas, ctx, drawing=false, signatureFilled=false;
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    function checkSignaturePad() {
+      let imgData = ctx.getImageData(0,0,canvas.width,canvas.height).data;
+      signatureFilled = Array.from(imgData).some((x,i)=>i%4===3 && x!==0);
+      return signatureFilled;
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      canvas = document.getElementById('signaturePad');
+      ctx = canvas.getContext('2d');
+      resizeCanvas();
+      let lastPos = null;
+      canvas.addEventListener('mousedown',e=>{
+        drawing=true; lastPos = [e.offsetX, e.offsetY];
+      });
+      canvas.addEventListener('mouseup',()=>drawing=false);
+      canvas.addEventListener('mouseleave',()=>drawing=false);
+      canvas.addEventListener('mousemove',e=>{
+        if (!drawing) return;
+        ctx.beginPath();
+        ctx.moveTo(lastPos[0], lastPos[1]);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = "#222";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        lastPos = [e.offsetX, e.offsetY];
+        signatureFilled = true;
+      });
+
+      canvas.addEventListener('touchstart',e=>{
+        e.preventDefault();
+        drawing=true;
+        const rect = canvas.getBoundingClientRect();
+        lastPos = [e.touches[0].clientX-rect.left, e.touches[0].clientY-rect.top];
+      });
+      canvas.addEventListener('touchend',()=>drawing=false);
+      canvas.addEventListener('touchcancel',()=>drawing=false);
+      canvas.addEventListener('touchmove',e=>{
+        if (!drawing) return;
+        e.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        let x = e.touches[0].clientX-rect.left;
+        let y = e.touches[0].clientY-rect.top;
+        ctx.beginPath();
+        ctx.moveTo(lastPos[0], lastPos[1]);
+        ctx.lineTo(x, y);
+        ctx.strokeStyle = "#222";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        lastPos = [x, y];
+        signatureFilled = true;
+      });
+    });
+    function clearSignaturePad() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      signatureFilled = false;
+    }
+    window.clearSignaturePad = clearSignaturePad;
+    window.addEventListener('resize',resizeCanvas);
+    document.addEventListener('DOMContentLoaded',resizeCanvas);
+
+    // --- Auto-grow for all textarea ---
+    function autoGrowTextArea(textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = (textarea.scrollHeight) + "px";
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('textarea').forEach(function(txt) {
+        autoGrowTextArea(txt);
+        txt.addEventListener('input', function() {
+          autoGrowTextArea(this);
+        });
+      });
+    });
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll('textarea').forEach(function(txt) {
+        txt.addEventListener('input', function() {
+          autoGrowTextArea(this);
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+
+
+    document.getElementById('generateImgBtn').onclick = function() {
+      if (!document.getElementById('mainForm').checkValidity()) {
+        alert('יש למלא את כל שדות החובה.');
+        return;
+      }
+      if (!checkSignaturePad()) {
+        alert('נא לחתום בטופס לפני השליחה.');
+        return;
+      }
+      let date = document.getElementById('date').value || 'no-date';
+      date = date.replace(/-/g,'');
+      html2canvas(document.getElementById('formContainer')).then(canvas => {
+        const dataURL = canvas.toDataURL("image/png");
+        const img = document.getElementById('result-img');
+        img.src = dataURL;
+        img.style.display = 'block';
+        let a = document.createElement('a');
+        a.href = dataURL;
+        a.download = 'report_'+date+'.png';
+        a.click();
+      });
+    };
+
+    document.getElementById('resetBtn').onclick = function() {
+      if (confirm("האם אתה בטוח שאתה רוצה לאפס את הטופס? כל הנתונים ימחקו!")) {
+        document.getElementById('mainForm').reset();
+        document.getElementById('result-img').style.display = 'none';
+        document.querySelectorAll('.conditional').forEach(e=>e.style.display='none');
+        clearSignaturePad();
+        document.querySelectorAll('textarea').forEach(function(txt) {
+          autoGrowTextArea(txt);
+        });
+      }
+    };
+  </script>
+</body>
+</html>
